@@ -1,0 +1,4 @@
+r6g,0.606
+July 2023 32C abs newBT,0.7633
+July 2023 32C abs newBT NNMF,0.765
+July 2023 32C BToptim nnmf,0.880

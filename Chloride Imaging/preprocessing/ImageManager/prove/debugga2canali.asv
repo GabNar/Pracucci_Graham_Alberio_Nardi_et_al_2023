@@ -1,0 +1,19 @@
+%imageGateway.Xcorr  
+
+tmp = squeeze(imageGateway.workImages(:,:,:,imageGateway.Xcorr.currentFrame));
+
+realMat = imageGateway.workImages(:,:,1,:);
+myMat = imageGateway.workImages(:,:,1,:).*(3/4);
+newMat = cat(3,realMat,myMat);
+
+pointers = [];
+pointers.data = libpointer('MATLAB array',newMat);
+pointers.x = libpointer('MATLAB array',imageGateway.timeI);
+
+% just try for debugging the ROI manager
+pointers.stimuli = libpointer('MATLAB array',((1:28:size(imageGateway.workImages,4))-1 ) * imageGateway.metadata.meanSP);
+
+cla(imageGateway.Xcorr.distW)
+imagesc(imageGateway.Xcorr.distW,tmp);
+axis(imageGateway.Xcorr.distW, [1, size(tmp,2), 1, size(tmp,1)])
+imageGateway.Xcorr.distW.UserData = pointers;

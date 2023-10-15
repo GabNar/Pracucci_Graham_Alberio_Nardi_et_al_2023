@@ -1,0 +1,86 @@
+function [pH,delta,epsilon,theta,res,R2_adj] = compute_pH(g,G1,G2,fit_fcn,fit_param)
+% GAB 2023:
+% This function used to be embedded in ionizer. I extracted it because it
+% can be useful also outside of the app (e.g. for calibration scripts).
+% briefly, spectra in g are decomposed as
+% g = delta*G1 + epsilon*G2,
+% then pH is computed from delta and epsilon with a functi
+%
+% INPUT:
+% -g            2D matrix of dimensions rois*wavelength with values of green
+%               fluorescence.
+% -G1           row vector with the excitation spectrum at acidic pH (e.g. pH 6).
+% -G2           row vector with the excitation spectrum at basic pH (e.g. pH 8).
+% -fit_fcn      (optional) anonimous function in the form of pH = fit_fcn(epsilon/delta, params).
+%               params are function-specific and sensor/setup-specific parameters 
+%               obtained through pH calibrations in cells. I pass epsilon/delta
+%               to this function instead of theta becouse of numerical
+%               stability in case of the new fitting function.
+% -fit_param    (optional) parameters for fit_fcn.
+%
+% OUTPUT:
+% -pH           pH value for each ROI
+% -delta        component at acidic pH for each ROI
+% -epsilon      component at basic pH for each ROI
+% -theta        atand(epsilon/delta) for each ROI
+
+
+n_roi=size(g,1);
+
+
+% September 2019
+% epsilon and delta are computed by the method outlined in the PNAS paper
+% 1) compute fit and all
+% GIMMI: I riderived eq. S3 and S4 from the PNAS paper and I found out that eq S3 is wrong but eq. s4 is ok.
+% delta is computed by using eq S4 to compute epsilon first and then this value is replaced in the
+% system S2 which is finally solved for delta.
+sG2sq = sum(G2 .* G2,2);
+sG1sq = sum(G1 .* G1,2);
+sG1G2 = sum(G1 .* G2,2);
+bigD = sG2sq * sG1sq - sG1G2*sG1G2;
+epsilon = (sG1sq .* sum(G2 .* g,2) - sG1G2 .* sum(G1 .* g,2)) ./ bigD;
+delta = (sum(G1 .* g,2) - epsilon  .* sG1G2) ./ sG1sq;
+theta=atand(epsilon./delta);
+%------------- gab & giacomo 2023 06 08: check theta ---------------------%
+for roi=1:n_roi
+    if delta(roi)<0 % it means 90°<theta<270°, but atan returns -90<theta<90
+        if epsilon(roi)>0
+            % it might happen if pH is very basic
+            theta(roi)=theta(roi)+180;
+        else
+            % this should NEVER happen, unless green fluo is so
+            % low we see nothing at all
+            theta(roi)=theta(roi)-180;
+        end
+    end
+end
+%-------------------------------------------------------------------------%
+% % try to find delta and epsilon numerically with fminsearch
+% epsilon2=zeros(size(epsilon));
+% delta2=epsilon2;
+% for roi=1:n_roi
+%     par=fminsearch(@(x)( sum( ( g(roi,:) - (x(1).*G1+x(2).*G2) ).^2 )),[0.5 0.5]);
+%     delta2(roi)=par(1);
+%     epsilon2(roi)=par(2);
+% end
+% 
+% % I did this and I got the same results... Math works! GAB, 2023
+%-------------------------------------------------------------------------%
+
+% goodness of fit
+pHmodel = delta .* G1 + epsilon .* G2; 
+res = sum( (g - pHmodel).^2, 2);
+% wavel_n=size(g,1);
+% R2_adj = 1 - res .* (wavel_n-2) ./ sum( (g - mean(g,2)).^2, 2) ./ (wavel_n-1);
+R2_adj = mean( (g - pHmodel).^2, 2);
+
+% compute pH
+if ~isempty(fit_fcn) && ~isempty(fit_param)
+    pH=fit_fcn(epsilon./delta,fit_param);
+    pH(imag(pH)~=0)=nan;
+    pH=abs(pH); 
+else
+    pH=[];
+end
+
+end

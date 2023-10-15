@@ -1,0 +1,5 @@
+%% changes ZebraExplore
+
+save downsampled trace: does not use "decimate" anymore. Use "interp1" instead.
+
+new function: 

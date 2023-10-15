@@ -1,0 +1,4 @@
+r6g,0.606
+June 2023 32C BTsf,0.754
+June 2023 32C BTsf 6.4and7.4,0.85
+June 2023 32C BTsf 6.4and7.8,0.85

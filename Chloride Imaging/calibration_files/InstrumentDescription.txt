@@ -1,0 +1,7 @@
+"File name, Instrument Description (will appear in the App option list), File name holding the Rzero values Comment"
+"AlfaBeta.txt" "Prairie old RF" "Prairie Narrow Red R0.txt" "Old Prairie settings with the old red filter 585-630"
+"AlfaBetaNewRF.txt" "Prairie new RF" "Prairie Wide Red R0.txt" "New Prairie settings with the new red filter 572-642"
+"AlfaBetaNewRF_sF.txt" "Prairie new RF sf" "Prairie Wide Red R0.txt" "New Prairie settings with the new red filter sf 572-642"
+"AlfaBetaClaude.txt" "Padua" "Prairie Narrow Red R0.txt" "VIMM Scientifica microscope Summer 2018"
+"AlfaBetaNewCstWideG.txt" "NCL wide G" "Newcastle Wide Red R0.txt" "Newcastle Thorlab, wide band GF"
+"AlfaBetaNewCstWideG.txt" "NCLB narrow G" "Newcastle Narrow Green R0.txt" "Newcastle Thorlab, narrow band GF"

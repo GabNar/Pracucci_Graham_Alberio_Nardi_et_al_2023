@@ -1,0 +1,4 @@
+r6g,0.606
+June 2023 32C,0.8231
+June 2023 32C abs,0.7633
+July 2023 34C OldSpectra,0.94
